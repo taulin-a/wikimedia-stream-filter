@@ -1,0 +1,23 @@
+{
+  "namespace": "org.taulin.model",
+  "type": "record",
+  "name": "Revision",
+  "fields": [
+    {
+      "name": "old",
+      "type": [
+        "null",
+        "long"
+      ],
+      "default": null
+    },
+    {
+      "name": "new",
+      "type": [
+        "null",
+        "long"
+      ],
+      "default": null
+    }
+  ]
+}
