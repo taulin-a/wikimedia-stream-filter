@@ -1,23 +1,30 @@
 package org.taulin;
 
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.connector.kafka.source.KafkaSource;
-import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import lombok.extern.slf4j.Slf4j;
+import org.taulin.component.EventFilterRunner;
+import org.taulin.factory.FilterModule;
 
+@Slf4j
 public class WikimediaStreamFilterApp {
     public static void main(String[] args) {
-        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        final Injector injector = Guice.createInjector(new FilterModule());
+        final EventFilterRunner eventFilterRunner = injector.getInstance(EventFilterRunner.class);
+        eventFilterRunner.run();
 
-        KafkaSource<String> source = KafkaSource.<String>builder()
-                .setBootstrapServers(brokers)
-                .setTopics("input-topic")
-                .setGroupId("my-group")
-                .setStartingOffsets(OffsetsInitializer.earliest())
-                .
-                .setValueOnlyDeserializer()
-                .build();
+        // shutdown hook
+        final Thread mainThread = Thread.currentThread();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                log.info("Shutting down...");
+                eventFilterRunner.close();
 
-        env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka Source");
+                mainThread.join();
+            } catch (Exception e) {
+                log.error("Error while shutting down: ", e);
+                throw new RuntimeException(e);
+            }
+        }));
     }
 }
