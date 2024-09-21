@@ -34,6 +34,6 @@ public class RecentChangeEventAvroDeserializer implements DeserializationSchema<
 
     @Override
     public TypeInformation<RecentChangeEvent> getProducedType() {
-        return null;
+        return TypeInformation.of(RecentChangeEvent.class);
     }
 }
