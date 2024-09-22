@@ -18,6 +18,8 @@ import org.taulin.model.RecentChangeEvent;
 import org.taulin.serialization.serializer.avro.RecentChangeEventAvroSerializer;
 import org.taulin.serialization.serializer.avro.RecentChangeEventKeySerializer;
 
+import java.util.List;
+
 @Slf4j
 public class EventFilterRunnerImpl implements EventFilterRunner {
     private static final String WIKIMEDIA_SOURCE_NAME = "Wikimedia Recent Change Events";
@@ -27,19 +29,22 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
     private final String sourceTopicName;
     private final String sinkTopicName;
     private final StreamExecutionEnvironment env;
+    private final List<String> filterTitleUrls;
 
     @Inject
     public EventFilterRunnerImpl(
             @Named("bootstrap.servers") String bootstrapServers,
             @Named("group.id") String groupId,
             @Named("source.topic.name") String sourceTopicName,
-            @Named("sink.topic.name") String sinkTopicName
+            @Named("sink.topic.name") String sinkTopicName,
+            @Named("filter.title.urls") String filterTitleUrlsStr
     ) {
         this.bootstrapServers = bootstrapServers;
         this.groupId = groupId;
         this.sourceTopicName = sourceTopicName;
         this.sinkTopicName = sinkTopicName;
         env = StreamExecutionEnvironment.getExecutionEnvironment();
+        filterTitleUrls = List.of(filterTitleUrlsStr.split(","));
     }
 
     @Override
@@ -69,7 +74,7 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
                     .build();
 
             eventsDataStream
-                    .filter((event) -> true)
+                    .filter((event) -> filterTitleUrls.contains(event.getTitleUrl().toString()))
                     .sinkTo(filteredEventsSink);
 
             env.executeAsync();
