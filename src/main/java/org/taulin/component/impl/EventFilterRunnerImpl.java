@@ -5,8 +5,6 @@ import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.FilterFunction;
-import org.apache.flink.api.common.restartstrategy.RestartStrategies;
-import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.connector.sink2.Sink;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.RestartStrategyOptions;
@@ -24,11 +22,11 @@ import org.taulin.serialization.serializer.avro.RecentChangeEventAvroSerializer;
 import org.taulin.serialization.serializer.avro.RecentChangeEventKeySerializer;
 
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class EventFilterRunnerImpl implements EventFilterRunner {
     private static final String WIKIMEDIA_SOURCE_NAME = "Wikimedia Recent Change Events";
+    private static final String DEFAULT_RESTART_STRATEGY = "fixed-delay";
 
     private final String bootstrapServers;
     private final String groupId;
@@ -49,9 +47,10 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
         this.groupId = groupId;
         this.sourceTopicName = sourceTopicName;
         this.sinkTopicName = sinkTopicName;
+
         Configuration config = new Configuration();
-        config.set(RestartStrategyOptions.RESTART_STRATEGY, "fixed-delay");
-        config.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_ATTEMPTS, 3);
+        config.set(RestartStrategyOptions.RESTART_STRATEGY, DEFAULT_RESTART_STRATEGY);
+        config.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_ATTEMPTS, 5);
         config.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_DELAY, Duration.ofMinutes(1));
         env = StreamExecutionEnvironment.getExecutionEnvironment(config);
 
