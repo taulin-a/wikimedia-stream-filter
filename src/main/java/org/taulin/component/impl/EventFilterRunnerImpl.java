@@ -4,7 +4,12 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.functions.FilterFunction;
+import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.connector.sink2.Sink;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.RestartStrategyOptions;
 import org.apache.flink.connector.base.DeliveryGuarantee;
 import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
@@ -18,7 +23,8 @@ import org.taulin.model.RecentChangeEvent;
 import org.taulin.serialization.serializer.avro.RecentChangeEventAvroSerializer;
 import org.taulin.serialization.serializer.avro.RecentChangeEventKeySerializer;
 
-import java.util.List;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class EventFilterRunnerImpl implements EventFilterRunner {
@@ -29,7 +35,7 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
     private final String sourceTopicName;
     private final String sinkTopicName;
     private final StreamExecutionEnvironment env;
-    private final List<String> filterTitleUrls;
+    private final FilterFunction<RecentChangeEvent> eventsFilterFunction;
 
     @Inject
     public EventFilterRunnerImpl(
@@ -37,14 +43,19 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
             @Named("group.id") String groupId,
             @Named("source.topic.name") String sourceTopicName,
             @Named("sink.topic.name") String sinkTopicName,
-            @Named("filter.title.urls") String filterTitleUrlsStr
+            FilterFunction<RecentChangeEvent> eventsFilterFunction
     ) {
         this.bootstrapServers = bootstrapServers;
         this.groupId = groupId;
         this.sourceTopicName = sourceTopicName;
         this.sinkTopicName = sinkTopicName;
-        env = StreamExecutionEnvironment.getExecutionEnvironment();
-        filterTitleUrls = List.of(filterTitleUrlsStr.split(","));
+        Configuration config = new Configuration();
+        config.set(RestartStrategyOptions.RESTART_STRATEGY, "fixed-delay");
+        config.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_ATTEMPTS, 3);
+        config.set(RestartStrategyOptions.RESTART_STRATEGY_FIXED_DELAY_DELAY, Duration.ofMinutes(1));
+        env = StreamExecutionEnvironment.getExecutionEnvironment(config);
+
+        this.eventsFilterFunction = eventsFilterFunction;
     }
 
     @Override
@@ -74,7 +85,7 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
                     .build();
 
             eventsDataStream
-                    .filter((event) -> filterTitleUrls.contains(event.getTitleUrl().toString()))
+                    .filter(eventsFilterFunction)
                     .sinkTo(filteredEventsSink);
 
             env.executeAsync();
