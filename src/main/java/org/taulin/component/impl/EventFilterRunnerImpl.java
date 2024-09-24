@@ -80,7 +80,7 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
                             .setValueSerializationSchema(new RecentChangeEventAvroSerializer())
                             .build()
                     )
-                    .setDeliveryGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
+                    .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
                     .build();
 
             eventsDataStream

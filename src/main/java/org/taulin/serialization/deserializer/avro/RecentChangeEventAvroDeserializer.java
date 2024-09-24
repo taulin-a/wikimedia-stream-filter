@@ -10,12 +10,11 @@ import org.apache.kafka.common.errors.SerializationException;
 import org.taulin.model.RecentChangeEvent;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 @Slf4j
 public class RecentChangeEventAvroDeserializer implements DeserializationSchema<RecentChangeEvent> {
     @Override
-    public RecentChangeEvent deserialize(byte[] data) throws IOException {
+    public RecentChangeEvent deserialize(byte[] data) {
         try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data)) {
             Decoder binaryDecoder = DecoderFactory.get().binaryDecoder(byteArrayInputStream, null);
 
