@@ -13,12 +13,12 @@ import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroDeserializationSchema;
+import org.apache.flink.formats.avro.registry.confluent.ConfluentRegistryAvroSerializationSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.taulin.serialization.deserializer.avro.RecentChangeEventAvroDeserializer;
 import org.taulin.component.EventFilterRunner;
 import org.taulin.model.RecentChangeEvent;
-import org.taulin.serialization.serializer.avro.RecentChangeEventAvroSerializer;
 import org.taulin.serialization.serializer.avro.RecentChangeEventKeySerializer;
 
 import java.time.Duration;
@@ -31,6 +31,8 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
     private final String bootstrapServers;
     private final String groupId;
     private final String sourceTopicName;
+    private final String schemaRegistryUrl;
+    private final String schemaRegistrySubject;
     private final String sinkTopicName;
     private final StreamExecutionEnvironment env;
     private final FilterFunction<RecentChangeEvent> eventsFilterFunction;
@@ -40,12 +42,16 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
             @Named("bootstrap.servers") String bootstrapServers,
             @Named("group.id") String groupId,
             @Named("source.topic.name") String sourceTopicName,
+            @Named("schema.registry.url") String schemaRegistryUrl,
+            @Named("schema.registry.subject") String schemaRegistrySubject,
             @Named("sink.topic.name") String sinkTopicName,
             FilterFunction<RecentChangeEvent> eventsFilterFunction
     ) {
         this.bootstrapServers = bootstrapServers;
         this.groupId = groupId;
         this.sourceTopicName = sourceTopicName;
+        this.schemaRegistryUrl = schemaRegistryUrl;
+        this.schemaRegistrySubject = schemaRegistrySubject;
         this.sinkTopicName = sinkTopicName;
 
         Configuration config = new Configuration();
@@ -65,7 +71,8 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
                     .setTopics(sourceTopicName)
                     .setGroupId(groupId)
                     .setStartingOffsets(OffsetsInitializer.earliest())
-                    .setValueOnlyDeserializer(new RecentChangeEventAvroDeserializer())
+                    .setValueOnlyDeserializer(ConfluentRegistryAvroDeserializationSchema
+                            .forSpecific(RecentChangeEvent.class, schemaRegistryUrl))
                     .build();
 
             DataStream<RecentChangeEvent> eventsDataStream = env.fromSource(wikimediaEventsSource,
@@ -77,7 +84,8 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
                     .setRecordSerializer(KafkaRecordSerializationSchema.<RecentChangeEvent>builder()
                             .setTopic(sinkTopicName)
                             .setKeySerializationSchema(new RecentChangeEventKeySerializer())
-                            .setValueSerializationSchema(new RecentChangeEventAvroSerializer())
+                            .setValueSerializationSchema(ConfluentRegistryAvroSerializationSchema
+                                    .forSpecific(RecentChangeEvent.class, schemaRegistrySubject, schemaRegistryUrl))
                             .build()
                     )
                     .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
