@@ -152,6 +152,13 @@ services:
     env_file:
       - environment
 
+  # Apache Superset
+  superset:
+    image: amancevice/superset:latest
+    container_name: superset
+    ports:
+      - 8088:8088
+
 # Druid volumes
 volumes:
   metadata_data: {}
