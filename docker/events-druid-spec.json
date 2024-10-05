@@ -12,6 +12,84 @@
         "dimensions": [
           {
             "type": "string",
+            "name": "length.new",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
+            "name": "length.old",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
+            "name": "meta.domain",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
+            "name": "meta.dt",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
+            "name": "meta.id",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
+            "name": "meta.offset",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
+            "name": "meta.partition",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
+            "name": "meta.requestId",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
+            "name": "meta.stream",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
+            "name": "meta.topic",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
+            "name": "meta.uri",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
+            "name": "revision.new",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
+            "name": "revision.old",
+            "multiValueHandling": "SORTED_ARRAY",
+            "createBitmapIndex": true
+          },
+          {
+            "type": "string",
             "name": "schema",
             "multiValueHandling": "SORTED_ARRAY",
             "createBitmapIndex": true
@@ -161,6 +239,89 @@
       "topicPattern": null,
       "inputFormat": {
         "type": "avro_stream",
+        "flattenSpec": {
+          "useFieldDiscovery": true,
+          "fields": [
+            {
+              "type": "path",
+              "name": "length.new",
+              "expr": "$.length.new",
+              "nodes": null
+            },
+            {
+              "type": "path",
+              "name": "length.old",
+              "expr": "$.length.old",
+              "nodes": null
+            },
+            {
+              "type": "path",
+              "name": "meta.domain",
+              "expr": "$.meta.domain",
+              "nodes": null
+            },
+            {
+              "type": "path",
+              "name": "meta.dt",
+              "expr": "$.meta.dt",
+              "nodes": null
+            },
+            {
+              "type": "path",
+              "name": "meta.id",
+              "expr": "$.meta.id",
+              "nodes": null
+            },
+            {
+              "type": "path",
+              "name": "meta.offset",
+              "expr": "$.meta.offset",
+              "nodes": null
+            },
+            {
+              "type": "path",
+              "name": "meta.partition",
+              "expr": "$.meta.partition",
+              "nodes": null
+            },
+            {
+              "type": "path",
+              "name": "meta.requestId",
+              "expr": "$.meta.requestId",
+              "nodes": null
+            },
+            {
+              "type": "path",
+              "name": "meta.stream",
+              "expr": "$.meta.stream",
+              "nodes": null
+            },
+            {
+              "type": "path",
+              "name": "meta.topic",
+              "expr": "$.meta.topic",
+              "nodes": null
+            },
+            {
+              "type": "path",
+              "name": "meta.uri",
+              "expr": "$.meta.uri",
+              "nodes": null
+            },
+            {
+              "type": "path",
+              "name": "revision.new",
+              "expr": "$.revision.new",
+              "nodes": null
+            },
+            {
+              "type": "path",
+              "name": "revision.old",
+              "expr": "$.revision.old",
+              "nodes": null
+            }
+          ]
+        },
         "avroBytesDecoder": {
           "type": "schema_registry",
           "url": "http://schema-registry:8081",
