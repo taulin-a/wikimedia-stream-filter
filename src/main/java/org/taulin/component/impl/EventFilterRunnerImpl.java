@@ -29,7 +29,11 @@ import java.sql.PreparedStatement;
 import java.time.Duration;
 import java.util.Objects;
 
-import static org.taulin.util.JdbcPrimitivesUtil.*;
+import static org.taulin.util.JdbcPrimitivesUtil.handleBoolean;
+import static org.taulin.util.JdbcPrimitivesUtil.handleCharSequence;
+import static org.taulin.util.JdbcPrimitivesUtil.handleEpoch;
+import static org.taulin.util.JdbcPrimitivesUtil.handleInteger;
+import static org.taulin.util.JdbcPrimitivesUtil.handleLong;
 
 @Slf4j
 public class EventFilterRunnerImpl implements EventFilterRunner {
@@ -144,7 +148,7 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
                         statement.setString(5, handleCharSequence(event.getTitle()));
                         statement.setString(6, handleCharSequence(event.getTitleUrl()));
                         statement.setString(7, handleCharSequence(event.getComment()));
-                        statement.setString(8, handleEpoch(event.getTimestamp()));
+                        statement.setObject(8, handleEpoch(event.getTimestamp()));
                         statement.setString(9, handleCharSequence(event.getUser()));
                         statement.setBoolean(10, handleBoolean(event.getBot()));
                         statement.setString(11, handleCharSequence(event.getNotifyUrl()));

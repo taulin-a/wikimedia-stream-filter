@@ -3,8 +3,8 @@ package org.taulin.util;
 import lombok.experimental.UtilityClass;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 @UtilityClass
@@ -31,7 +31,7 @@ public class JdbcPrimitivesUtil {
         return Boolean.TRUE.equals(value);
     }
 
-    public static String handleEpoch(Long value) {
+    public static OffsetDateTime handleEpoch(Long value) {
         Long parsedValue = handleLong(value);
 
         if (parsedValue == Long.MIN_VALUE) {
@@ -41,8 +41,7 @@ public class JdbcPrimitivesUtil {
         }
     }
 
-    private static String parseEpochToFormattedDateStr(Long epoch) {
-        return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
-                LocalDateTime.ofEpochSecond(epoch, 0, ZoneOffset.UTC));
+    private static OffsetDateTime parseEpochToFormattedDateStr(Long epoch) {
+        return LocalDateTime.ofEpochSecond(epoch, 0, ZoneOffset.UTC).atOffset(ZoneOffset.UTC);
     }
 }
