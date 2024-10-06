@@ -29,6 +29,8 @@ import java.sql.PreparedStatement;
 import java.time.Duration;
 import java.util.Objects;
 
+import static org.taulin.util.JdbcPrimitivesUtil.*;
+
 @Slf4j
 public class EventFilterRunnerImpl implements EventFilterRunner {
     private static final String WIKIMEDIA_SOURCE_NAME = "Wikimedia Recent Change Events";
@@ -135,68 +137,62 @@ public class EventFilterRunnerImpl implements EventFilterRunner {
             SinkFunction<RecentChangeEvent> eventsBackupSink = JdbcSink.sink(
                     EVENT_INSERT_SCRIPT,
                     (PreparedStatement statement, RecentChangeEvent event) -> {
-                        statement.setLong(1, Objects.nonNull(event.getId())
-                                ? event.getId()
-                                : Long.MIN_VALUE);
-                        statement.setString(2, event.getSchema$().toString());
-                        statement.setString(3, event.getType().toString());
-                        statement.setInt(4, Objects.nonNull(event.getNamespace())
-                                ? event.getNamespace()
-                                : Integer.MIN_VALUE);
-                        statement.setString(5, event.getTitle().toString());
-                        statement.setString(6, event.getTitleUrl().toString());
-                        statement.setString(7, event.getComment().toString());
-                        statement.setLong(8, Objects.nonNull(event.getTimestamp())
-                                ? event.getTimestamp()
-                                : Long.MIN_VALUE);
-                        statement.setString(9, event.getUser().toString());
-                        statement.setBoolean(10, Boolean.TRUE.equals(event.getBot()));
-                        statement.setString(11, event.getNotifyUrl().toString());
-                        statement.setString(12, event.getServerUrl().toString());
-                        statement.setString(13, event.getServerName().toString());
-                        statement.setString(14, event.getServerScriptPath().toString());
-                        statement.setString(15, event.getWiki().toString());
-                        statement.setString(16, event.getParsedComment().toString());
-                        statement.setBoolean(17, Boolean.TRUE.equals(event.getMinor()));
-                        statement.setBoolean(18, Boolean.TRUE.equals(event.getPatrolled()));
+                        statement.setLong(1, handleLong(event.getId()));
+                        statement.setString(2, handleCharSequence(event.getSchema$()));
+                        statement.setString(3, handleCharSequence(event.getType()));
+                        statement.setInt(4, handleInteger(event.getNamespace()));
+                        statement.setString(5, handleCharSequence(event.getTitle()));
+                        statement.setString(6, handleCharSequence(event.getTitleUrl()));
+                        statement.setString(7, handleCharSequence(event.getComment()));
+                        statement.setString(8, handleEpoch(event.getTimestamp()));
+                        statement.setString(9, handleCharSequence(event.getUser()));
+                        statement.setBoolean(10, handleBoolean(event.getBot()));
+                        statement.setString(11, handleCharSequence(event.getNotifyUrl()));
+                        statement.setString(12, handleCharSequence(event.getServerUrl()));
+                        statement.setString(13, handleCharSequence(event.getServerName()));
+                        statement.setString(14, handleCharSequence(event.getServerScriptPath()));
+                        statement.setString(15, handleCharSequence(event.getWiki()));
+                        statement.setString(16, handleCharSequence(event.getParsedComment()));
+                        statement.setBoolean(17, handleBoolean(event.getMinor()));
+                        statement.setBoolean(18, handleBoolean(event.getPatrolled()));
                         statement.setString(19, Objects.nonNull(event.getMeta())
-                                ? event.getMeta().getUri().toString()
+                                ? handleCharSequence(event.getMeta().getUri())
                                 : null);
                         statement.setString(20, Objects.nonNull(event.getMeta())
-                                ? event.getMeta().getRequestId().toString()
+                                ? handleCharSequence(event.getMeta().getRequestId())
                                 : null);
                         statement.setString(21, Objects.nonNull(event.getMeta())
-                                ? event.getMeta().getId().toString()
+                                ? handleCharSequence(event.getMeta().getId())
                                 : null);
                         statement.setString(22, Objects.nonNull(event.getMeta())
-                                ? event.getMeta().getDt().toString()
+                                ? handleCharSequence(event.getMeta().getDt())
                                 : null);
                         statement.setString(23, Objects.nonNull(event.getMeta())
-                                ? event.getMeta().getDomain().toString()
+                                ? handleCharSequence(event.getMeta().getDomain())
                                 : null);
                         statement.setString(24, Objects.nonNull(event.getMeta())
-                                ? event.getMeta().getStream().toString()
+                                ? handleCharSequence(event.getMeta().getStream())
                                 : null);
                         statement.setString(25, Objects.nonNull(event.getMeta())
-                                ? event.getMeta().getTopic().toString()
+                                ? handleCharSequence(event.getMeta().getTopic())
                                 : null);
                         statement.setInt(26, Objects.nonNull(event.getMeta())
-                                ? event.getMeta().getPartition()
-                                : Integer.MAX_VALUE);
+                                ? handleInteger(event.getMeta().getPartition())
+                                : Integer.MIN_VALUE);
                         statement.setLong(27, Objects.nonNull(event.getMeta())
-                                ? event.getMeta().getOffset()
+                                ? handleLong(event.getMeta().getOffset())
                                 : Long.MIN_VALUE);
                         statement.setLong(28, Objects.nonNull(event.getLength())
-                                ? event.getLength().getOld()
+                                ? handleLong(event.getLength().getOld())
                                 : Long.MIN_VALUE);
                         statement.setLong(29, Objects.nonNull(event.getLength())
-                                ? event.getLength().getNew$()
+                                ? handleLong(event.getLength().getNew$())
                                 : Long.MIN_VALUE);
                         statement.setLong(30, Objects.nonNull(event.getLength())
-                                ? event.getRevision().getOld()
+                                ? handleLong(event.getRevision().getOld())
                                 : Long.MIN_VALUE);
                         statement.setLong(31, Objects.nonNull(event.getLength())
-                                ? event.getRevision().getNew$()
+                                ? handleLong(event.getRevision().getNew$())
                                 : Long.MIN_VALUE);
                     },
                     JdbcExecutionOptions.builder()
