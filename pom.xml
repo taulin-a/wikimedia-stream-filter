@@ -16,6 +16,7 @@
         <main.class>org.taulin.WikimediaStreamFilterApp</main.class>
 
         <flink.version>1.17.2</flink.version>
+        <flink.jdbc.connector.version>1.16.3</flink.jdbc.connector.version>
         <avro.version>1.11.1</avro.version>
         <slf4j.version>2.0.16</slf4j.version>
         <guice.version>7.0.0</guice.version>
@@ -54,6 +55,11 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-avro</artifactId>
             <version>${flink.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-jdbc</artifactId>
+            <version>${flink.jdbc.connector.version}</version>
         </dependency>
 
         <!-- Avro -->

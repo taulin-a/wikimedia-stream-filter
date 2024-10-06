@@ -55,6 +55,20 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:29092,PLAINTEXT_INTERNAL://localhost:9092
       SCHEMA_REGISTRY_DEBUG: 'true'
 
+  # Backup database
+  backup-postgres:
+    container_name: backup-postgres
+    image: postgres:latest
+    ports:
+      - "5433:5432"
+    volumes:
+      - backup_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_PASSWORD=FoolishPassword
+      - POSTGRES_USER=flink
+      - POSTGRES_DB=wikimedia_backup_data
+
   # Druid environment
   postgres:
     container_name: postgres
@@ -161,6 +175,7 @@ services:
 
 # Druid volumes
 volumes:
+  backup_data: {}
   metadata_data: {}
   middle_var: {}
   historical_var: {}
